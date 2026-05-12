@@ -211,7 +211,14 @@ async function loadData(){
     for(const folder of folders){
       const ld=await cuFetch('/folder/'+folder.id+'/list?archived=false');
       const lists=ld.lists||[];
-      const visList=lists.find(l=>norm(l.name).includes('visibility'));
+      // Find visibility update list - try multiple matching strategies
+      const visList = lists.find(l=>norm(l.name).includes('visibility'))
+                   || lists.find(l=>norm(l.name).includes('update'))
+                   || null;
+
+      console.log('['+folder.name+'] lists found:', lists.map(l=>l.name+' ('+l.id+')').join(', '));
+      console.log('['+folder.name+'] visList:', visList ? visList.name+' ('+visList.id+')' : 'NOT FOUND');
+
       let kickoffDate=null, accountManager='';
 
       // Scan all lists for kickoff date + AM task
@@ -237,10 +244,12 @@ async function loadData(){
         let page=0,more=true;
         while(more){
           const td=await cuFetch('/list/'+visList.id+'/task?archived=false&include_closed=true&subtasks=false&page='+page);
+          console.log('['+folder.name+'] page '+page+' tasks:', (td.tasks||[]).length);
           for(const t of(td.tasks||[])){
             const grp=t.status?.status||'';
             const created=t.date_created;
             const updated=t.date_updated;
+            console.log('  task:', grp, '|', t.name.substring(0,40));
             if(isIgnored(grp)) continue;
             if(isNewOpp(grp)  && fresh(created)) newOpp4w++;
             if(isBooking(grp) && fresh(created)) booking4w++;
@@ -252,6 +261,8 @@ async function loadData(){
           more=!td.last_page&&(td.tasks||[]).length>0;
           if(++page>8) break;
         }
+      } else {
+        console.log('['+folder.name+'] NO VISIBILITY LIST FOUND - skipping task count');
       }
 
       recentTasks.sort((a,b)=>b.ts-a.ts);
