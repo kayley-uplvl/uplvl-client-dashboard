@@ -149,8 +149,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 
 <script>
 const API_KEY      = 'pk_14864871_GH8N9CLH0O7AWQWIW1W9VPEOMTNYKYO8';
-const TEAM_ID      = '10593922';
-const SPACE_NAME   = 'ul roster';
+const SPACE_ID = '60255589';
 const VIS_LIST     = 'visibility update';
 const W4           = 28*24*60*60*1000;
 
@@ -192,12 +191,7 @@ async function cuFetch(path){
 async function init(){
   setPill('loading','Connecting...');
   try{
-    // Find the UL ROSTER space by name
-    const sd=await cuFetch('/team/'+TEAM_ID+'/space?archived=false');
-    const spaces=sd.spaces||[];
-    const space=spaces.find(s=>norm(s.name)===SPACE_NAME) || spaces[0];
-    if(!space) throw new Error('Could not find UL ROSTER space.');
-    S.spaceId=space.id;
+    S.spaceId=SPACE_ID;
     await loadData();
   }catch(e){
     setErr('Could not connect: '+e.message);
