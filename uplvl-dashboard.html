@@ -150,7 +150,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 <script>
 const API_KEY      = 'pk_14864871_GH8N9CLH0O7AWQWIW1W9VPEOMTNYKYO8';
 const SPACE_ID = '60255589';
-const VIS_LIST     = 'visibility update';
+const VIS_LIST     = 'internal';
 const W4           = 28*24*60*60*1000;
 
 function norm(s){ return (s||'').toLowerCase().trim(); }
@@ -284,7 +284,7 @@ function maxOf(key){ return Math.max(...S.clients.map(c=>c[key]||0),1); }
 
 function renderList(){
   const el=document.getElementById('client-list');
-  if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading UL ROSTER...</div>'; return; }
+  if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading Internal lists...</div>'; return; }
   if(!S.clients.length){ el.innerHTML='<div class="loading-row">No clients found.</div>'; return; }
   const mxN=maxOf('newOpp4w'),mxB=maxOf('booking4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
   const bar=(v,mx,col)=>`<div class="mini-bar-wrap"><div class="mini-bar" style="width:${Math.round((v/mx)*100)}%;background:${col}"></div></div>`;
