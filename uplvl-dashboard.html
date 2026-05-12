@@ -150,7 +150,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 <script>
 const API_KEY      = 'pk_14864871_GH8N9CLH0O7AWQWIW1W9VPEOMTNYKYO8';
 const SPACE_ID = '60255589';
-const VIS_LIST     = 'internal';
+const VIS_LIST     = 'visibility update';
 const W4           = 28*24*60*60*1000;
 
 function norm(s){ return (s||'').toLowerCase().trim(); }
@@ -159,7 +159,7 @@ function isBooking(s) { return norm(s)==='booking'; }
 function isUpcoming(s){ return norm(s)==='upcoming'; }
 function isWaiting(s) { return norm(s)==='waiting on link'; }
 function isPub(s)     { return norm(s)==='published'; }
-function isIgnored(s) { const n=norm(s); return n==='inactive'||n==='media call outs'||n==='follow up'; }
+function isIgnored(s) { const n=norm(s); return n==='inactive'||n==='media call outs'||n==='follow up'||n==='feedback & highlights'||n==='closed'||n==='pitching'; }
 function fresh(ts)    { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W4; }
 function fmtDate(ts)  { const d=new Date(parseInt(ts||0)); return isNaN(d.getTime())?'—':d.toLocaleDateString([],{month:'short',day:'numeric'}); }
 function tagClass(g)  { if(isNewOpp(g))return'tag-n'; if(isBooking(g))return'tag-b'; if(isUpcoming(g))return'tag-u'; if(isWaiting(g))return'tag-w'; if(isPub(g))return'tag-p'; return'tag-o'; }
@@ -211,7 +211,7 @@ async function loadData(){
     for(const folder of folders){
       const ld=await cuFetch('/folder/'+folder.id+'/list?archived=false');
       const lists=ld.lists||[];
-      const visList=lists.find(l=>norm(l.name)===VIS_LIST);
+      const visList=lists.find(l=>norm(l.name).includes('visibility'));
       let kickoffDate=null, accountManager='';
 
       // Scan all lists for kickoff date + AM task
