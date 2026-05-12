@@ -41,6 +41,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .band-tag-camp { background: var(--green-bg); color: var(--green2); }
 .band { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 28px; }
 .band-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.band-cards-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
 .band-cards-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
 .band-cards-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; max-width: 600px; }
 .sum-card { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px 18px; }
@@ -55,13 +56,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .group-cell { padding: 6px 6px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
 .group-4w { color: var(--blue); border-bottom: 2px solid var(--blue-light); }
 .group-camp { color: var(--green2); border-bottom: 2px solid var(--green2-light); }
-.t-header { display: grid; grid-template-columns: 1fr 72px 72px 72px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
 .th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 8px 6px; }
 .th-r { text-align: right; }
 .th-div { width: 1px; background: var(--border); margin: 4px 4px; padding: 0; }
 .c-row { border-bottom: 1px solid var(--border-light); }
 .c-row:last-child { border-bottom: none; }
-.r-main { display: grid; grid-template-columns: 1fr 72px 72px 72px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
+.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
 .r-main:hover { background: var(--bg-secondary); }
 .cell { padding: 0 6px; }
 .cell-div { width: 1px; background: var(--border-light); margin: 4px 4px; align-self: stretch; }
@@ -109,7 +110,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
   <div class="section-heading">4-Week Run Rate <span class="band-tag band-tag-4w">rolling 28 days · all clients</span></div>
   <div class="band">
     <div class="band-cards band-cards-2">
-      <div class="sum-card"><div class="sum-accent" style="background:#97C459"></div><div class="sum-label">Average Upcoming Opps<br><span style="font-size:9px;letter-spacing:0.06em;opacity:0.7">AGENCY AVERAGE</span></div><div class="sum-num" id="tot-upcoming4w">—</div><div class="sum-sub">avg newly scheduled per client this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Average Booked Interviews<br><span style="font-size:9px;letter-spacing:0.06em;opacity:0.7">AGENCY AVERAGE</span></div><div class="sum-num" id="tot-booking4w">—</div><div class="sum-sub">avg newly scheduled interview per client this past month</div></div>
       <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Average Published<br><span style="font-size:9px;letter-spacing:0.06em;opacity:0.7">AGENCY AVERAGE</span></div><div class="sum-num" id="tot-pub4w">—</div><div class="sum-sub">avg live placements per client this past month</div></div>
     </div>
   </div>
@@ -134,9 +135,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
     </div>
     <div class="t-header">
       <div class="th">Client</div>
-      <div class="th th-r" style="color:#185FA5">New ops</div>
-      <div class="th th-r" style="color:#534AB7">Booking</div>
-      <div class="th th-r" style="color:#0F6E56">Published</div>
+      <div class="th th-r" style="color:#534AB7">Booking 4w</div>
+      <div class="th th-r" style="color:#0F6E56">Published 4w</div>
       <div class="th-div"></div>
       <div class="th th-r" style="color:#3B6D11">Upcoming</div>
       <div class="th th-r" style="color:#854F0B">Waiting</div>
@@ -355,7 +355,7 @@ function updateTotals(){
   const t=key=>S.clients.reduce((a,x)=>a+(x[key]||0),0);
   const n=S.clients.length||1;
   const avg=(key)=>(t(key)/n).toFixed(1).replace(/\.0$/,'');
-  document.getElementById('tot-upcoming4w').textContent = avg('upcoming4w');
+  document.getElementById('tot-booking4w').textContent  = avg('booking4w');
   document.getElementById('tot-pub4w').textContent      = avg('pub4w');
   document.getElementById('tot-upcoming').textContent   = t('upcoming');
   document.getElementById('tot-waiting').textContent    = t('waiting');
@@ -368,7 +368,7 @@ function renderList(){
   const el=document.getElementById('client-list');
   if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading Internal lists...</div>'; return; }
   if(!S.clients.length){ el.innerHTML='<div class="loading-row">No clients found.</div>'; return; }
-  const mxN=maxOf('newOpp4w'),mxB=maxOf('booking4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
+  const mxB=maxOf('booking4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
   const bar=(v,mx,col)=>`<div class="mini-bar-wrap"><div class="mini-bar" style="width:${Math.round((v/mx)*100)}%;background:${col}"></div></div>`;
   el.innerHTML=S.clients.map(c=>{
     const isOpen=S.open.has(c.id);
@@ -381,7 +381,6 @@ function renderList(){
     return `<div class="c-row">
       <div class="r-main" onclick="toggleRow('${c.id}')">
         <div class="cell"><div class="c-name">${c.name}</div>${c.manager?`<div class="c-sub">${c.manager}</div>`:''}</div>
-        <div class="cell"><div class="cell-num" style="color:#185FA5">${c.newOpp4w}</div>${bar(c.newOpp4w,mxN,'#85B7EB')}</div>
         <div class="cell"><div class="cell-num" style="color:#534AB7">${c.booking4w}</div>${bar(c.booking4w,mxB,'#AFA9EC')}</div>
         <div class="cell"><div class="cell-num" style="color:#0F6E56">${c.pub4w}</div>${bar(c.pub4w,mxP,'#1D9E75')}</div>
         <div class="cell-div"></div>
