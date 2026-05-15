@@ -52,19 +52,19 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .sum-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 5px; line-height: 1.4; }
 .table-section-heading { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 10px; }
 .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 32px; }
-.t-group-row { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-light); }
+.t-group-row { display: grid; grid-template-columns: 1fr 216px 1px 220px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-light); }
 .group-empty { padding: 6px 6px 5px; }
 .group-cell { padding: 6px 6px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
 .group-4w { color: var(--blue); border-bottom: 2px solid var(--blue-light); }
 .group-3m { color: var(--purple); border-bottom: 2px solid var(--purple-light); }
 .group-camp { color: var(--green2); border-bottom: 2px solid var(--green2-light); }
-.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
 .th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 8px 6px; }
 .th-r { text-align: right; }
 .th-div { width: 1px; background: var(--border); margin: 4px 4px; padding: 0; }
 .c-row { border-bottom: 1px solid var(--border-light); }
 .c-row:last-child { border-bottom: none; }
-.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
+.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
 .r-main:hover { background: var(--bg-secondary); }
 .cell { padding: 0 6px; }
 .cell-div { width: 1px; background: var(--border-light); margin: 4px 4px; align-self: stretch; }
@@ -142,20 +142,15 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
   <div class="table-wrap">
     <div class="t-group-row">
       <div class="group-empty"></div>
-      <div class="group-cell group-4w" style="grid-column:span 2">4-Week Run Rate</div>
+      <div class="group-cell group-4w">4-Week Run Rate</div>
       <div style="width:1px;background:var(--border-light)"></div>
-      <div class="group-cell group-3m" style="grid-column:span 2">3-Month Run Rate</div>
-      <div style="width:1px;background:var(--border-light)"></div>
-      <div class="group-cell group-camp" style="grid-column:span 3">Entire Campaign Run Rate</div>
+      <div class="group-cell group-camp">Entire Campaign Run Rate</div>
       <div class="group-empty"></div>
     </div>
     <div class="t-header">
       <div class="th">Client</div>
       <div class="th th-r" style="color:#185FA5">New Ops 4w</div>
       <div class="th th-r" style="color:#0F6E56">Published 4w</div>
-      <div class="th-div"></div>
-      <div class="th th-r" style="color:#534AB7">New Ops 3m</div>
-      <div class="th th-r" style="color:#534AB7">Published 3m</div>
       <div class="th-div"></div>
       <div class="th th-r" style="color:#3B6D11">Upcoming</div>
       <div class="th th-r" style="color:#854F0B">Waiting</div>
@@ -300,73 +295,71 @@ async function loadData(){
             const created=parseInt(t.date_created||0);
             const initialStatus=norm(t.status?.status||'');
 
-            // Fetch activity/history for this task
-            const activity=await cuFetch('/task/'+t.id+'/activity?&include_automation_history=false');
-            const events=activity.data||[];
+            // Fetch all activity pages for this task
+            const events=[];
+            let aPage=0,aMore=true;
+            while(aMore){
+              const activity=await cuFetch('/task/'+t.id+'/activity?include_automation_history=false&page='+aPage);
+              events.push(...(activity.data||[]));
+              aMore=!activity.last_page&&(activity.data||[]).length>0;
+              if(++aPage>10) break;
+            }
 
-            const createdIn4w  = fresh(t.date_created);
-            const createdIn3m  = fresh3m(t.date_created);
-            const curStatus    = norm(t.status?.status||'');
+            const createdIn4w = fresh(t.date_created);
+            const createdIn3m = fresh3m(t.date_created);
+            const curStatus   = norm(t.status?.status||'');
 
-            // Track which stages this task entered within 4w / 3m
-            let enteredNewOpp=false, enteredBooking=false, enteredUpcoming4w=false, enteredPub=false;
-            let enteredNewOpp3m=false, enteredPub3m=false;
+            let touchedNewOpp4w=false, touchedNewOpp3m=false;
+            let enteredBooking=false, enteredUpcoming4w=false, enteredPub=false, enteredPub3m=false;
+            let everTouchedNewOpp=false;
 
-            // Scan history events for status transitions within each window.
-            // Also track whether this task ever moved FROM "new opp" or "published"
-            // so we can detect tasks created directly into those statuses.
-            let everLeftNewOpp=false, everLeftPub=false;
             events.forEach(ev=>{
               if(ev.field!=='status') return;
-              const ts=parseInt(ev.date||0);
-              const toStatus  = norm(ev.after?.status||ev.to||'');
-              const fromStatus= norm(ev.before?.status||ev.from||'');
-              if(isNewOpp(fromStatus)) everLeftNewOpp=true;
-              if(isPub(fromStatus))    everLeftPub=true;
+              const ts         = parseInt(ev.date||0);
+              const toStatus   = norm(ev.after?.status||ev.to||'');
+              const fromStatus = norm(ev.before?.status||ev.from||'');
+              const involvesNewOpp = isNewOpp(toStatus)||isNewOpp(fromStatus);
+              if(involvesNewOpp) everTouchedNewOpp=true;
               if(fresh(ts)){
-                if(isNewOpp(toStatus))   enteredNewOpp=true;
+                if(involvesNewOpp)       touchedNewOpp4w=true;
                 if(isBooking(toStatus))  enteredBooking=true;
                 if(isUpcoming(toStatus)) enteredUpcoming4w=true;
                 if(isPub(toStatus))      enteredPub=true;
               }
               if(fresh3m(ts)){
-                if(isNewOpp(toStatus))   enteredNewOpp3m=true;
-                if(isPub(toStatus))      enteredPub3m=true;
+                if(involvesNewOpp)   touchedNewOpp3m=true;
+                if(isPub(toStatus))  enteredPub3m=true;
               }
             });
 
-            // If the task was created within the window and started in "new opp"
-            // (either still there, or history shows it moved on from there),
-            // count it as having entered new opp at creation.
-            const startedAsNewOpp = isNewOpp(curStatus) || everLeftNewOpp;
-            const startedAsPub    = isPub(curStatus)    || everLeftPub;
-            if(createdIn4w){
-              if(startedAsNewOpp)           enteredNewOpp=true;
-              if(isBooking(curStatus))      enteredBooking=true;
-              if(isUpcoming(curStatus))     enteredUpcoming4w=true;
-              if(startedAsPub)              enteredPub=true;
-            }
-            if(createdIn3m){
-              if(startedAsNewOpp)  enteredNewOpp3m=true;
-              if(startedAsPub)     enteredPub3m=true;
-            }
+            // Task created within window — if it was ever in new opp (currently or via history), count it
+            const startedAsNewOpp = isNewOpp(curStatus)||everTouchedNewOpp;
+            if(createdIn4w && startedAsNewOpp) touchedNewOpp4w=true;
+            if(createdIn3m && startedAsNewOpp) touchedNewOpp3m=true;
 
-            if(enteredNewOpp)    newOpp4w++;
-            if(enteredBooking)   booking4w++;
+            // Booking/upcoming/pub fallback for tasks created fresh with that status
+            if(createdIn4w){
+              if(isBooking(curStatus))  enteredBooking=true;
+              if(isUpcoming(curStatus)) enteredUpcoming4w=true;
+              if(isPub(curStatus))      enteredPub=true;
+            }
+            if(createdIn3m && isPub(curStatus)) enteredPub3m=true;
+
+            if(touchedNewOpp4w)   newOpp4w++;
+            if(enteredBooking)    booking4w++;
             if(enteredUpcoming4w) upcoming4w++;
-            if(enteredPub)       pub4w++;
-            if(enteredNewOpp3m)  newOpp3m++;
-            if(enteredPub3m)     pub3m++;
+            if(enteredPub)        pub4w++;
+            if(touchedNewOpp3m)   newOpp3m++;
+            if(enteredPub3m)      pub3m++;
           }catch(e){
-            // If history fetch fails, fall back to current status + creation date
             const grp=t.status?.status||'';
             const created=t.date_created;
             const updated=t.date_updated;
-            if(isNewOpp(grp)   && fresh(created))          newOpp4w++;
-            if(isBooking(grp)  && fresh(created))          booking4w++;
-            if(isUpcoming(grp) && fresh(created))          upcoming4w++;
-            if(isPub(grp)      && fresh(updated||created)) pub4w++;
-            if(isNewOpp(grp)   && fresh3m(created))        newOpp3m++;
+            if(isNewOpp(grp)   && fresh(created))            newOpp4w++;
+            if(isBooking(grp)  && fresh(created))            booking4w++;
+            if(isUpcoming(grp) && fresh(created))            upcoming4w++;
+            if(isPub(grp)      && fresh(updated||created))   pub4w++;
+            if(isNewOpp(grp)   && fresh3m(created))          newOpp3m++;
             if(isPub(grp)      && fresh3m(updated||created)) pub3m++;
           }
         }
@@ -411,7 +404,7 @@ function renderList(){
   const el=document.getElementById('client-list');
   if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading Internal lists...</div>'; return; }
   if(!S.clients.length){ el.innerHTML='<div class="loading-row">No clients found.</div>'; return; }
-  const mxN=maxOf('newOpp4w'),mxP=maxOf('pub4w'),mxN3=maxOf('newOpp3m'),mxP3=maxOf('pub3m'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
+  const mxN=maxOf('newOpp4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
   const bar=(v,mx,col)=>`<div class="mini-bar-wrap"><div class="mini-bar" style="width:${Math.round((v/mx)*100)}%;background:${col}"></div></div>`;
   el.innerHTML=S.clients.map(c=>{
     const isOpen=S.open.has(c.id);
@@ -426,9 +419,6 @@ function renderList(){
         <div class="cell"><div class="c-name">${c.name}</div>${c.manager?`<div class="c-sub">${c.manager}</div>`:''}</div>
         <div class="cell"><div class="cell-num" style="color:#185FA5">${c.newOpp4w}</div>${bar(c.newOpp4w,mxN,'#85B7EB')}</div>
         <div class="cell"><div class="cell-num" style="color:#0F6E56">${c.pub4w}</div>${bar(c.pub4w,mxP,'#1D9E75')}</div>
-        <div class="cell-div"></div>
-        <div class="cell"><div class="cell-num" style="color:#534AB7">${c.newOpp3m}</div>${bar(c.newOpp3m,mxN3,'#AFA9EC')}</div>
-        <div class="cell"><div class="cell-num" style="color:#534AB7">${c.pub3m}</div>${bar(c.pub3m,mxP3,'#AFA9EC')}</div>
         <div class="cell-div"></div>
         <div class="cell"><div class="cell-num" style="color:#3B6D11">${c.upcoming}</div>${bar(c.upcoming,mxU,'#97C459')}</div>
         <div class="cell"><div class="cell-num" style="color:#854F0B">${c.waiting}</div>${bar(c.waiting,mxW,'#EF9F27')}</div>
