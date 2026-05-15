@@ -304,50 +304,51 @@ async function loadData(){
             const activity=await cuFetch('/task/'+t.id+'/activity?&include_automation_history=false');
             const events=activity.data||[];
 
-            // Look for status change events within 4 weeks
-            // Also count the task's creation if it was created in last 4w
-            const createdFresh=fresh(t.date_created);
+            const createdIn4w  = fresh(t.date_created);
+            const createdIn3m  = fresh3m(t.date_created);
+            const curStatus    = norm(t.status?.status||'');
 
             // Track which stages this task entered within 4w / 3m
             let enteredNewOpp=false, enteredBooking=false, enteredUpcoming4w=false, enteredPub=false;
             let enteredNewOpp3m=false, enteredPub3m=false;
 
-            // If task was created fresh, its initial status counts as "entered"
-            if(createdFresh){
-              const s=norm(t.status?.status||'');
-              // But we need to check what it was created AS - use history to find first status
-            }
-
-            // Check all status change events
+            // Scan history events for status transitions within each window.
+            // Also track whether this task ever moved FROM "new opp" or "published"
+            // so we can detect tasks created directly into those statuses.
+            let everLeftNewOpp=false, everLeftPub=false;
             events.forEach(ev=>{
               if(ev.field!=='status') return;
               const ts=parseInt(ev.date||0);
-              const toStatus=norm(ev.after?.status||ev.to||'');
+              const toStatus  = norm(ev.after?.status||ev.to||'');
+              const fromStatus= norm(ev.before?.status||ev.from||'');
+              if(isNewOpp(fromStatus)) everLeftNewOpp=true;
+              if(isPub(fromStatus))    everLeftPub=true;
               if(fresh(ts)){
-                if(isNewOpp(toStatus))    enteredNewOpp=true;
-                if(isBooking(toStatus))   enteredBooking=true;
-                if(isUpcoming(toStatus))  enteredUpcoming4w=true;
-                if(isPub(toStatus))       enteredPub=true;
+                if(isNewOpp(toStatus))   enteredNewOpp=true;
+                if(isBooking(toStatus))  enteredBooking=true;
+                if(isUpcoming(toStatus)) enteredUpcoming4w=true;
+                if(isPub(toStatus))      enteredPub=true;
               }
               if(fresh3m(ts)){
-                if(isNewOpp(toStatus))    enteredNewOpp3m=true;
-                if(isPub(toStatus))       enteredPub3m=true;
+                if(isNewOpp(toStatus))   enteredNewOpp3m=true;
+                if(isPub(toStatus))      enteredPub3m=true;
               }
             });
 
-            // Also count if task was CREATED fresh and current status is one of these
-            // (meaning it was created directly into that status)
-            if(createdFresh){
-              const curStatus=norm(t.status?.status||'');
-              if(isNewOpp(curStatus))    enteredNewOpp=true;
-              if(isBooking(curStatus))   enteredBooking=true;
-              if(isUpcoming(curStatus))  enteredUpcoming4w=true;
-              if(isPub(curStatus))       enteredPub=true;
+            // If the task was created within the window and started in "new opp"
+            // (either still there, or history shows it moved on from there),
+            // count it as having entered new opp at creation.
+            const startedAsNewOpp = isNewOpp(curStatus) || everLeftNewOpp;
+            const startedAsPub    = isPub(curStatus)    || everLeftPub;
+            if(createdIn4w){
+              if(startedAsNewOpp)           enteredNewOpp=true;
+              if(isBooking(curStatus))      enteredBooking=true;
+              if(isUpcoming(curStatus))     enteredUpcoming4w=true;
+              if(startedAsPub)              enteredPub=true;
             }
-            if(fresh3m(t.date_created)){
-              const curStatus=norm(t.status?.status||'');
-              if(isNewOpp(curStatus))    enteredNewOpp3m=true;
-              if(isPub(curStatus))       enteredPub3m=true;
+            if(createdIn3m){
+              if(startedAsNewOpp)  enteredNewOpp3m=true;
+              if(startedAsPub)     enteredPub3m=true;
             }
 
             if(enteredNewOpp)    newOpp4w++;
