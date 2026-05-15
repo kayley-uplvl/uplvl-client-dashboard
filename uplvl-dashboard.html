@@ -56,13 +56,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .group-cell { padding: 6px 6px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
 .group-4w { color: var(--blue); border-bottom: 2px solid var(--blue-light); }
 .group-camp { color: var(--green2); border-bottom: 2px solid var(--green2-light); }
-.t-header { display: grid; grid-template-columns: 1fr 80px 85px 80px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
 .th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 8px 6px; }
 .th-r { text-align: right; }
 .th-div { width: 1px; background: var(--border); margin: 4px 4px; padding: 0; }
 .c-row { border-bottom: 1px solid var(--border-light); }
 .c-row:last-child { border-bottom: none; }
-.r-main { display: grid; grid-template-columns: 1fr 80px 85px 80px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
+.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
 .r-main:hover { background: var(--bg-secondary); }
 .cell { padding: 0 6px; }
 .cell-div { width: 1px; background: var(--border-light); margin: 4px 4px; align-self: stretch; }
@@ -109,9 +109,11 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 
   <div class="section-heading">4-Week Run Rate <span class="band-tag band-tag-4w">rolling 28 days · all clients</span></div>
   <div class="band">
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:600px;">
-      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Booked Interviews</div><div class="sum-num" id="tot-booking4w">—</div><div class="sum-sub">total booked this past month</div></div>
-      <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Published</div><div class="sum-num" id="tot-pub4w">—</div><div class="sum-sub">total live placements this past month</div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div class="sum-card"><div class="sum-accent" style="background:#85B7EB"></div><div class="sum-label">Total New Ops</div><div class="sum-num" id="tot-newop4w">—</div><div class="sum-sub">new opportunities this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#85B7EB" style="opacity:0.5"></div><div class="sum-label">Avg New Ops</div><div class="sum-num" id="avg-newop4w">—</div><div class="sum-sub">avg new ops per client this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Total Published</div><div class="sum-num" id="tot-pub4w">—</div><div class="sum-sub">live placements this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Avg Published</div><div class="sum-num" id="avg-pub4w">—</div><div class="sum-sub">avg live placements per client this past month</div></div>
     </div>
   </div>
 
@@ -135,8 +137,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
     </div>
     <div class="t-header">
       <div class="th">Client</div>
-      <div class="th th-r" style="color:#534AB7">Booking 4w</div>
-      <div class="th th-r" style="color:#3B6D11">Upcoming 4w</div>
+      <div class="th th-r" style="color:#185FA5">New Ops 4w</div>
       <div class="th th-r" style="color:#0F6E56">Published 4w</div>
       <div class="th-div"></div>
       <div class="th th-r" style="color:#3B6D11">Upcoming</div>
@@ -356,8 +357,10 @@ function updateTotals(){
   const t=key=>S.clients.reduce((a,x)=>a+(x[key]||0),0);
   const n=S.clients.length||1;
   const avg=(key)=>(t(key)/n).toFixed(1).replace(/\.0$/,'');
-  document.getElementById('tot-booking4w').textContent  = t('booking4w');
+  document.getElementById('tot-newop4w').textContent    = t('newOpp4w');
+  document.getElementById('avg-newop4w').textContent    = avg('newOpp4w');
   document.getElementById('tot-pub4w').textContent      = t('pub4w');
+  document.getElementById('avg-pub4w').textContent      = avg('pub4w');
   document.getElementById('tot-upcoming').textContent   = t('upcoming');
   document.getElementById('tot-waiting').textContent    = t('waiting');
   document.getElementById('tot-pubtotal').textContent   = t('pubTotal');
@@ -369,7 +372,7 @@ function renderList(){
   const el=document.getElementById('client-list');
   if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading Internal lists...</div>'; return; }
   if(!S.clients.length){ el.innerHTML='<div class="loading-row">No clients found.</div>'; return; }
-  const mxB=maxOf('booking4w'),mxU4=maxOf('upcoming4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
+  const mxN=maxOf('newOpp4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
   const bar=(v,mx,col)=>`<div class="mini-bar-wrap"><div class="mini-bar" style="width:${Math.round((v/mx)*100)}%;background:${col}"></div></div>`;
   el.innerHTML=S.clients.map(c=>{
     const isOpen=S.open.has(c.id);
@@ -382,8 +385,7 @@ function renderList(){
     return `<div class="c-row">
       <div class="r-main" onclick="toggleRow('${c.id}')">
         <div class="cell"><div class="c-name">${c.name}</div>${c.manager?`<div class="c-sub">${c.manager}</div>`:''}</div>
-        <div class="cell"><div class="cell-num" style="color:#534AB7">${c.booking4w}</div>${bar(c.booking4w,mxB,'#AFA9EC')}</div>
-        <div class="cell"><div class="cell-num" style="color:#3B6D11">${c.upcoming4w}</div>${bar(c.upcoming4w,mxU4,'#97C459')}</div>
+        <div class="cell"><div class="cell-num" style="color:#185FA5">${c.newOpp4w}</div>${bar(c.newOpp4w,mxN,'#85B7EB')}</div>
         <div class="cell"><div class="cell-num" style="color:#0F6E56">${c.pub4w}</div>${bar(c.pub4w,mxP,'#1D9E75')}</div>
         <div class="cell-div"></div>
         <div class="cell"><div class="cell-num" style="color:#3B6D11">${c.upcoming}</div>${bar(c.upcoming,mxU,'#97C459')}</div>
