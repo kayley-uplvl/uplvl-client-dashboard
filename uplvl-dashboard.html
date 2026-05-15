@@ -38,6 +38,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .section-heading { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
 .band-tag { font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px; font-family: var(--font-mono); }
 .band-tag-4w { background: var(--blue-bg); color: var(--blue); }
+.band-tag-3m { background: var(--purple-bg); color: var(--purple); }
 .band-tag-camp { background: var(--green-bg); color: var(--green2); }
 .band { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 28px; }
 .band-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
@@ -51,18 +52,19 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
 .sum-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 5px; line-height: 1.4; }
 .table-section-heading { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 10px; }
 .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 32px; }
-.t-group-row { display: grid; grid-template-columns: 1fr 216px 1px 220px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-light); }
+.t-group-row { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-light); }
 .group-empty { padding: 6px 6px 5px; }
 .group-cell { padding: 6px 6px 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
 .group-4w { color: var(--blue); border-bottom: 2px solid var(--blue-light); }
+.group-3m { color: var(--purple); border-bottom: 2px solid var(--purple-light); }
 .group-camp { color: var(--green2); border-bottom: 2px solid var(--green2-light); }
-.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+.t-header { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 0 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
 .th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 8px 6px; }
 .th-r { text-align: right; }
 .th-div { width: 1px; background: var(--border); margin: 4px 4px; padding: 0; }
 .c-row { border-bottom: 1px solid var(--border-light); }
 .c-row:last-child { border-bottom: none; }
-.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
+.r-main { display: grid; grid-template-columns: 1fr 90px 90px 1px 90px 90px 1px 68px 72px 76px 120px; padding: 12px 16px; align-items: center; cursor: pointer; transition: background 0.1s; }
 .r-main:hover { background: var(--bg-secondary); }
 .cell { padding: 0 6px; }
 .cell-div { width: 1px; background: var(--border-light); margin: 4px 4px; align-self: stretch; }
@@ -117,6 +119,16 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
     </div>
   </div>
 
+  <div class="section-heading">3-Month Run Rate <span class="band-tag band-tag-3m">rolling 90 days · all clients</span></div>
+  <div class="band">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Total New Ops</div><div class="sum-num" id="tot-newop3m">—</div><div class="sum-sub">new opportunities this past 3 months</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Avg New Ops</div><div class="sum-num" id="avg-newop3m">—</div><div class="sum-sub">avg new ops per client this past 3 months</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#534AB7"></div><div class="sum-label">Total Published</div><div class="sum-num" id="tot-pub3m">—</div><div class="sum-sub">live placements this past 3 months</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#534AB7"></div><div class="sum-label">Avg Published</div><div class="sum-num" id="avg-pub3m">—</div><div class="sum-sub">avg live placements per client this past 3 months</div></div>
+    </div>
+  </div>
+
   <div class="section-heading">Entire Campaign Run Rate <span class="band-tag band-tag-camp">current snapshot · all clients</span></div>
   <div class="band">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
@@ -130,15 +142,20 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
   <div class="table-wrap">
     <div class="t-group-row">
       <div class="group-empty"></div>
-      <div class="group-cell group-4w">4-Week Run Rate</div>
+      <div class="group-cell group-4w" style="grid-column:span 2">4-Week Run Rate</div>
       <div style="width:1px;background:var(--border-light)"></div>
-      <div class="group-cell group-camp">Entire Campaign Run Rate</div>
+      <div class="group-cell group-3m" style="grid-column:span 2">3-Month Run Rate</div>
+      <div style="width:1px;background:var(--border-light)"></div>
+      <div class="group-cell group-camp" style="grid-column:span 3">Entire Campaign Run Rate</div>
       <div class="group-empty"></div>
     </div>
     <div class="t-header">
       <div class="th">Client</div>
       <div class="th th-r" style="color:#185FA5">New Ops 4w</div>
       <div class="th th-r" style="color:#0F6E56">Published 4w</div>
+      <div class="th-div"></div>
+      <div class="th th-r" style="color:#534AB7">New Ops 3m</div>
+      <div class="th th-r" style="color:#534AB7">Published 3m</div>
       <div class="th-div"></div>
       <div class="th th-r" style="color:#3B6D11">Upcoming</div>
       <div class="th th-r" style="color:#854F0B">Waiting</div>
@@ -155,6 +172,7 @@ const API_KEY      = 'pk_14864871_GH8N9CLH0O7AWQWIW1W9VPEOMTNYKYO8';
 const SPACE_ID = '60255589';
 const VIS_LIST     = 'visibility update';
 const W4           = 28*24*60*60*1000;
+const W3M          = 90*24*60*60*1000;
 
 function norm(s){ return (s||'').toLowerCase().trim(); }
 function isNewOpp(s)  { return norm(s)==='new opp'; }
@@ -164,6 +182,7 @@ function isWaiting(s) { return norm(s)==='waiting on link'; }
 function isPub(s)     { return norm(s)==='published'; }
 function isIgnored(s) { const n=norm(s); return n==='inactive'||n==='media call outs'||n==='follow up'||n==='feedback & highlights'||n==='closed'||n==='pitching'; }
 function fresh(ts)    { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W4; }
+function fresh3m(ts)  { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W3M; }
 function fmtDate(ts)  { const d=new Date(parseInt(ts||0)); return isNaN(d.getTime())?'—':d.toLocaleDateString([],{month:'short',day:'numeric'}); }
 function tagClass(g)  { if(isNewOpp(g))return'tag-n'; if(isBooking(g))return'tag-b'; if(isUpcoming(g))return'tag-u'; if(isWaiting(g))return'tag-w'; if(isPub(g))return'tag-p'; return'tag-o'; }
 
@@ -240,7 +259,7 @@ async function loadData(){
         }
       }
 
-      let newOpp4w=0,booking4w=0,upcoming4w=0,upcoming=0,waiting=0,pub4w=0,pubTotal=0;
+      let newOpp4w=0,booking4w=0,upcoming4w=0,upcoming=0,waiting=0,pub4w=0,pubTotal=0,newOpp3m=0,pub3m=0;
       const recentTasks=[];
 
       if(visList){
@@ -289,8 +308,9 @@ async function loadData(){
             // Also count the task's creation if it was created in last 4w
             const createdFresh=fresh(t.date_created);
 
-            // Track which stages this task entered within 4w
+            // Track which stages this task entered within 4w / 3m
             let enteredNewOpp=false, enteredBooking=false, enteredUpcoming4w=false, enteredPub=false;
+            let enteredNewOpp3m=false, enteredPub3m=false;
 
             // If task was created fresh, its initial status counts as "entered"
             if(createdFresh){
@@ -302,12 +322,17 @@ async function loadData(){
             events.forEach(ev=>{
               if(ev.field!=='status') return;
               const ts=parseInt(ev.date||0);
-              if(!fresh(ts)) return; // only care about last 4 weeks
               const toStatus=norm(ev.after?.status||ev.to||'');
-              if(isNewOpp(toStatus))    enteredNewOpp=true;
-              if(isBooking(toStatus))   enteredBooking=true;
-              if(isUpcoming(toStatus))  enteredUpcoming4w=true;
-              if(isPub(toStatus))       enteredPub=true;
+              if(fresh(ts)){
+                if(isNewOpp(toStatus))    enteredNewOpp=true;
+                if(isBooking(toStatus))   enteredBooking=true;
+                if(isUpcoming(toStatus))  enteredUpcoming4w=true;
+                if(isPub(toStatus))       enteredPub=true;
+              }
+              if(fresh3m(ts)){
+                if(isNewOpp(toStatus))    enteredNewOpp3m=true;
+                if(isPub(toStatus))       enteredPub3m=true;
+              }
             });
 
             // Also count if task was CREATED fresh and current status is one of these
@@ -319,26 +344,35 @@ async function loadData(){
               if(isUpcoming(curStatus))  enteredUpcoming4w=true;
               if(isPub(curStatus))       enteredPub=true;
             }
+            if(fresh3m(t.date_created)){
+              const curStatus=norm(t.status?.status||'');
+              if(isNewOpp(curStatus))    enteredNewOpp3m=true;
+              if(isPub(curStatus))       enteredPub3m=true;
+            }
 
             if(enteredNewOpp)    newOpp4w++;
             if(enteredBooking)   booking4w++;
             if(enteredUpcoming4w) upcoming4w++;
             if(enteredPub)       pub4w++;
+            if(enteredNewOpp3m)  newOpp3m++;
+            if(enteredPub3m)     pub3m++;
           }catch(e){
             // If history fetch fails, fall back to current status + creation date
             const grp=t.status?.status||'';
             const created=t.date_created;
             const updated=t.date_updated;
-            if(isNewOpp(grp)   && fresh(created)) newOpp4w++;
-            if(isBooking(grp)  && fresh(created)) booking4w++;
-            if(isUpcoming(grp) && fresh(created)) upcoming4w++;
+            if(isNewOpp(grp)   && fresh(created))          newOpp4w++;
+            if(isBooking(grp)  && fresh(created))          booking4w++;
+            if(isUpcoming(grp) && fresh(created))          upcoming4w++;
             if(isPub(grp)      && fresh(updated||created)) pub4w++;
+            if(isNewOpp(grp)   && fresh3m(created))        newOpp3m++;
+            if(isPub(grp)      && fresh3m(updated||created)) pub3m++;
           }
         }
       }
 
       recentTasks.sort((a,b)=>b.ts-a.ts);
-      out.push({id:folder.id,name:folder.name,manager:accountManager,newOpp4w,booking4w,upcoming4w,upcoming,waiting,pub4w,pubTotal,kickoffDate,tasks:recentTasks.slice(0,6)});
+      out.push({id:folder.id,name:folder.name,manager:accountManager,newOpp4w,booking4w,upcoming4w,upcoming,waiting,pub4w,pubTotal,newOpp3m,pub3m,kickoffDate,tasks:recentTasks.slice(0,6)});
     }
 
     S.clients=out; S.live=true; S.loading=false;
@@ -361,6 +395,10 @@ function updateTotals(){
   document.getElementById('avg-newop4w').textContent    = avg('newOpp4w');
   document.getElementById('tot-pub4w').textContent      = t('pub4w');
   document.getElementById('avg-pub4w').textContent      = avg('pub4w');
+  document.getElementById('tot-newop3m').textContent    = t('newOpp3m');
+  document.getElementById('avg-newop3m').textContent    = avg('newOpp3m');
+  document.getElementById('tot-pub3m').textContent      = t('pub3m');
+  document.getElementById('avg-pub3m').textContent      = avg('pub3m');
   document.getElementById('tot-upcoming').textContent   = t('upcoming');
   document.getElementById('tot-waiting').textContent    = t('waiting');
   document.getElementById('tot-pubtotal').textContent   = t('pubTotal');
@@ -372,7 +410,7 @@ function renderList(){
   const el=document.getElementById('client-list');
   if(S.loading){ el.innerHTML='<div class="loading-row">Loading client data from ClickUp — reading Internal lists...</div>'; return; }
   if(!S.clients.length){ el.innerHTML='<div class="loading-row">No clients found.</div>'; return; }
-  const mxN=maxOf('newOpp4w'),mxP=maxOf('pub4w'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
+  const mxN=maxOf('newOpp4w'),mxP=maxOf('pub4w'),mxN3=maxOf('newOpp3m'),mxP3=maxOf('pub3m'),mxU=maxOf('upcoming'),mxW=maxOf('waiting'),mxT=maxOf('pubTotal');
   const bar=(v,mx,col)=>`<div class="mini-bar-wrap"><div class="mini-bar" style="width:${Math.round((v/mx)*100)}%;background:${col}"></div></div>`;
   el.innerHTML=S.clients.map(c=>{
     const isOpen=S.open.has(c.id);
@@ -387,6 +425,9 @@ function renderList(){
         <div class="cell"><div class="c-name">${c.name}</div>${c.manager?`<div class="c-sub">${c.manager}</div>`:''}</div>
         <div class="cell"><div class="cell-num" style="color:#185FA5">${c.newOpp4w}</div>${bar(c.newOpp4w,mxN,'#85B7EB')}</div>
         <div class="cell"><div class="cell-num" style="color:#0F6E56">${c.pub4w}</div>${bar(c.pub4w,mxP,'#1D9E75')}</div>
+        <div class="cell-div"></div>
+        <div class="cell"><div class="cell-num" style="color:#534AB7">${c.newOpp3m}</div>${bar(c.newOpp3m,mxN3,'#AFA9EC')}</div>
+        <div class="cell"><div class="cell-num" style="color:#534AB7">${c.pub3m}</div>${bar(c.pub3m,mxP3,'#AFA9EC')}</div>
         <div class="cell-div"></div>
         <div class="cell"><div class="cell-num" style="color:#3B6D11">${c.upcoming}</div>${bar(c.upcoming,mxU,'#97C459')}</div>
         <div class="cell"><div class="cell-num" style="color:#854F0B">${c.waiting}</div>${bar(c.waiting,mxW,'#EF9F27')}</div>
