@@ -114,14 +114,14 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
       <div class="sum-card"><div class="sum-accent" style="background:#85B7EB"></div><div class="sum-label">Total New Ops</div><div class="sum-num" id="tot-newop4w">—</div><div class="sum-sub">new opportunities, booking, or upcoming this past month</div></div>
       <div class="sum-card"><div class="sum-accent" style="background:#85B7EB"></div><div class="sum-label">Avg New Ops</div><div class="sum-num" id="avg-newop4w">—</div><div class="sum-sub">avg new ops, booking, or upcoming per client this past month</div></div>
-      <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Total Published</div><div class="sum-num" id="tot-pub4w">—</div><div class="sum-sub">live placements this past month</div></div>
-      <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Avg Published</div><div class="sum-num" id="avg-pub4w">—</div><div class="sum-sub">avg live placements per client this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#EF9F27"></div><div class="sum-label">Total Media Call Outs</div><div class="sum-num" id="tot-mediaco4w">—</div><div class="sum-sub">media call outs this past month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#EF9F27"></div><div class="sum-label">Avg Media Call Outs</div><div class="sum-num" id="avg-mediaco4w">—</div><div class="sum-sub">avg media call outs per client this past month</div></div>
     </div>
     <div style="border-top:1px solid var(--border-light);margin-top:14px;padding-top:14px;">
-      <div class="table-section-heading" style="margin-bottom:10px">Media Call Outs</div>
+      <div class="table-section-heading" style="margin-bottom:10px">Published</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:calc(50% - 6px);">
-        <div class="sum-card"><div class="sum-accent" style="background:#EF9F27"></div><div class="sum-label">Total Media Call Outs</div><div class="sum-num" id="tot-mediaco4w">—</div><div class="sum-sub">media call outs this past month</div></div>
-        <div class="sum-card"><div class="sum-accent" style="background:#EF9F27"></div><div class="sum-label">Avg Media Call Outs</div><div class="sum-num" id="avg-mediaco4w">—</div><div class="sum-sub">avg media call outs per client this past month</div></div>
+        <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Total Published</div><div class="sum-num" id="tot-pub4w">—</div><div class="sum-sub">live placements this past month</div></div>
+        <div class="sum-card"><div class="sum-accent" style="background:#1D9E75"></div><div class="sum-label">Avg Published</div><div class="sum-num" id="avg-pub4w">—</div><div class="sum-sub">avg live placements per client this past month</div></div>
       </div>
     </div>
   </div>
@@ -129,8 +129,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
   <div class="section-heading">3-Month Run Rate <span class="band-tag band-tag-3m">rolling 90 days · all clients</span></div>
   <div class="band">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Total New Ops</div><div class="sum-num" id="tot-newop3m">—</div><div class="sum-sub">new opportunities this past 3 months</div></div>
-      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Avg New Ops</div><div class="sum-num" id="avg-newop3m">—</div><div class="sum-sub">avg new ops per client per month</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Total New Ops</div><div class="sum-num" id="tot-newop3m">—</div><div class="sum-sub">new opportunities, booking, or upcoming this past 3 months</div></div>
+      <div class="sum-card"><div class="sum-accent" style="background:#AFA9EC"></div><div class="sum-label">Avg New Ops</div><div class="sum-num" id="avg-newop3m">—</div><div class="sum-sub">avg new ops, booking, or upcoming per client</div></div>
       <div class="sum-card"><div class="sum-accent" style="background:#534AB7"></div><div class="sum-label">Total Published</div><div class="sum-num" id="tot-pub3m">—</div><div class="sum-sub">live placements this past 3 months</div></div>
       <div class="sum-card"><div class="sum-accent" style="background:#534AB7"></div><div class="sum-label">Avg Published</div><div class="sum-num" id="avg-pub3m">—</div><div class="sum-sub">avg live placements per client per month</div></div>
     </div>
@@ -156,7 +156,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--text-p
     </div>
     <div class="t-header">
       <div class="th">Client</div>
-      <div class="th th-r" style="color:#185FA5">New Ops 4w</div>
+      <div class="th th-r" style="color:#185FA5">New/Book/Upcoming 4w</div>
       <div class="th th-r" style="color:#0F6E56">Published 4w</div>
       <div class="th-div"></div>
       <div class="th th-r" style="color:#3B6D11">Upcoming</div>
@@ -330,12 +330,12 @@ async function loadData(){
               const s=timeline[i].status;
               const entered=timeline[i].since;
               const exited=timeline[i].current?null:(i+1<timeline.length?timeline[i+1].since:now);
-              if(isNewOpp(s)&&(entered>=win3m||(exited&&exited>=win3m))) cNewOpp3m=true;
+              if(isActiveOpp(s)&&(entered>=win3m||(exited&&exited>=win3m))) cNewOpp3m=true;
               if(isPub(s)&&entered>=win4w) cPub4w=true;
               if(isPub(s)&&entered>=win3m) cPub3m=true;
             }
           }catch(e){
-            if(isNewOpp(grp)&&fresh3m(created))          cNewOpp3m=true;
+            if(isActiveOpp(grp)&&fresh3m(created))        cNewOpp3m=true;
             if(isPub(grp)&&fresh(updated||created))      cPub4w=true;
             if(isPub(grp)&&fresh3m(updated||created))    cPub3m=true;
           }
@@ -373,7 +373,7 @@ function updateTotals(){
   document.getElementById('tot-mediaco4w').textContent  = t('mediaCO4w');
   document.getElementById('avg-mediaco4w').textContent  = avg('mediaCO4w');
   document.getElementById('tot-newop3m').textContent    = t('newOpp3m');
-  document.getElementById('avg-newop3m').textContent    = (t('newOpp3m')/n/3).toFixed(1).replace(/\.0$/,'');
+  document.getElementById('avg-newop3m').textContent    = (t('newOpp3m')/n).toFixed(1).replace(/\.0$/,'');
   document.getElementById('tot-pub3m').textContent      = t('pub3m');
   document.getElementById('avg-pub3m').textContent      = (t('pub3m')/n/3).toFixed(1).replace(/\.0$/,'');
   document.getElementById('tot-upcoming').textContent   = t('upcoming');
