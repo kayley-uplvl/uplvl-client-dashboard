@@ -189,15 +189,6 @@ function isActiveOpp(s)    { return isNewOpp(s)||isBooking(s)||isUpcoming(s); }
 function isMediaCallOut(s) { return norm(s)==='media call outs'; }
 function fresh(ts)    { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W4; }
 function fresh3m(ts)  { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W3M; }
-function getWOD(t){
-  const cf=(t.custom_fields||[]).find(f=>norm(f.name||'').includes('week of'));
-  if(!cf||cf.value==null) return 0;
-  let ts=parseInt(cf.value);
-  if(ts>0&&ts<1e12) ts*=1000; // convert seconds → ms if needed
-  return ts||0;
-}
-function freshWOD(t)  { const ts=getWOD(t); return ts>0&&(Date.now()-ts)<=W4; }
-function freshWOD3m(t){ const ts=getWOD(t); return ts>0&&(Date.now()-ts)<=W3M; }
 function getPD(t){
   const cf=(t.custom_fields||[]).find(f=>norm(f.name||'').includes('published date'));
   if(!cf||cf.value==null) return 0;
@@ -299,15 +290,15 @@ async function loadData(){
           if(++page>8) break;
         }
 
-        // Step 2: count all metrics directly from task data — no extra API calls needed
+        // Step 2: count all metrics directly from task data
         allVisTasks.forEach(t=>{
           const grp=t.status?.status||'';
-          // new ops: pipeline statuses (new opp/booking/upcoming/waiting/published) by "Week Of:" date
-          if(freshWOD(t)&&isPipelineStatus(grp))   newOpp4w++;
-          if(freshWOD3m(t)&&isPipelineStatus(grp))  newOpp3m++;
-          // media call outs: by "Week Of:" date
-          if(freshWOD(t)&&isMediaCallOut(grp))      mediaCO4w++;
-          // published: by "Published Date" custom field (set automatically via ClickUp automation)
+          // new ops: tasks created within the window in a pipeline status
+          if(fresh(t.date_created)&&isPipelineStatus(grp))  newOpp4w++;
+          if(fresh3m(t.date_created)&&isPipelineStatus(grp)) newOpp3m++;
+          // media call outs: tasks created within the window
+          if(fresh(t.date_created)&&isMediaCallOut(grp))    mediaCO4w++;
+          // published: by "Published Date" custom field
           if(freshPD(t)&&isPub(grp))                pub4w++;
           if(freshPD3m(t)&&isPub(grp))              pub3m++;
           if(isIgnored(grp)) return;
@@ -325,6 +316,7 @@ async function loadData(){
     }
 
     S.clients=out; S.live=true; S.loading=false;
+
     const stamp='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     document.getElementById('upd-stamp').textContent=stamp;
     document.getElementById('bot-stamp').textContent=stamp;
