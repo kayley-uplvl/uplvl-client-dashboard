@@ -187,6 +187,13 @@ function isPub(s)     { return norm(s)==='published'; }
 function isIgnored(s)      { const n=norm(s); return n==='inactive'||n==='media call outs'||n==='follow up'||n==='feedback & highlights'||n==='closed'||n==='pitching'; }
 function isActiveOpp(s)    { return isNewOpp(s)||isBooking(s)||isUpcoming(s); }
 function isMediaCallOut(s) { return norm(s)==='media call outs'; }
+function isSyndication(t) {
+  const cf=(t.custom_fields||[]).find(f=>norm(f.name||'')==='media');
+  if(!cf) return false;
+  // value can be a string or an object with a name property (ClickUp dropdown)
+  const val=cf.value!=null?(cf.value.name||cf.value):'';
+  return norm(val)==='syndication';
+}
 function fresh(ts)    { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W4; }
 function fresh3m(ts)  { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W3M; }
 function getPD(t){
@@ -293,18 +300,19 @@ async function loadData(){
         // Step 2: count all metrics directly from task data
         allVisTasks.forEach(t=>{
           const grp=t.status?.status||'';
-          // new ops: tasks created within the window in a pipeline status
-          if(fresh(t.date_created)&&isPipelineStatus(grp))  newOpp4w++;
-          if(fresh3m(t.date_created)&&isPipelineStatus(grp)) newOpp3m++;
-          // media call outs: tasks created within the window
-          if(fresh(t.date_created)&&isMediaCallOut(grp))    mediaCO4w++;
-          // published: by "Published Date" custom field
-          if(freshPD(t)&&isPub(grp))                pub4w++;
-          if(freshPD3m(t)&&isPub(grp))              pub3m++;
+          const synd=isSyndication(t); // exclude syndication from all counts
+          // new ops: tasks created within the window in a pipeline status (not syndication)
+          if(!synd&&fresh(t.date_created)&&isPipelineStatus(grp))   newOpp4w++;
+          if(!synd&&fresh3m(t.date_created)&&isPipelineStatus(grp)) newOpp3m++;
+          // media call outs: tasks created within the window (not syndication)
+          if(!synd&&fresh(t.date_created)&&isMediaCallOut(grp))     mediaCO4w++;
+          // published: by "Published Date" custom field (not syndication)
+          if(!synd&&freshPD(t)&&isPub(grp))                pub4w++;
+          if(!synd&&freshPD3m(t)&&isPub(grp))              pub3m++;
           if(isIgnored(grp)) return;
-          if(isUpcoming(grp)) upcoming++;
-          if(isWaiting(grp))  waiting++;
-          if(isPub(grp))      pubTotal++;
+          if(!synd&&isUpcoming(grp)) upcoming++;
+          if(!synd&&isWaiting(grp))  waiting++;
+          if(!synd&&isPub(grp))      pubTotal++;
           const created=t.date_created;
           const updated=t.date_updated;
           if(fresh(created)||fresh(updated)) recentTasks.push({n:t.name,g:grp,ts:parseInt(created||0)});
