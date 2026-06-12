@@ -189,10 +189,21 @@ function isActiveOpp(s)    { return isNewOpp(s)||isBooking(s)||isUpcoming(s); }
 function isMediaCallOut(s) { return norm(s)==='media call outs'; }
 function isSyndication(t) {
   const cf=(t.custom_fields||[]).find(f=>norm(f.name||'')==='media');
-  if(!cf) return false;
-  // value can be a string or an object with a name property (ClickUp dropdown)
-  const val=cf.value!=null?(cf.value.name||cf.value):'';
-  return norm(val)==='syndication';
+  if(!cf||cf.value==null) return false;
+  // ClickUp dropdowns: value is the selected option's orderindex (number).
+  // The option name lives in type_config.options — find it by orderindex or id.
+  const raw=cf.value;
+  const options=(cf.type_config&&cf.type_config.options)||[];
+  let label='';
+  if(typeof raw==='object'&&raw!==null){
+    label=raw.name||'';
+  } else if(options.length){
+    const opt=options.find(o=>o.orderindex===raw||o.orderindex===Number(raw)||o.id===raw||String(o.orderindex)===String(raw));
+    label=opt?opt.name:'';
+  } else {
+    label=String(raw);
+  }
+  return norm(label)==='syndication';
 }
 function fresh(ts)    { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W4; }
 function fresh3m(ts)  { const d=parseInt(ts||0); return d>0&&(Date.now()-d)<=W3M; }
