@@ -178,7 +178,7 @@ const VIS_LIST     = 'visibility update';
 const W4           = 28*24*60*60*1000;
 const W3M          = 90*24*60*60*1000;
 
-function norm(s){ return (s||'').toLowerCase().trim(); }
+function norm(s){ return String(s==null?'':s).toLowerCase().trim(); }
 function isNewOpp(s)  { return norm(s)==='new opp'; }
 function isBooking(s) { return norm(s)==='booking'; }
 function isUpcoming(s){ return norm(s)==='upcoming'; }
