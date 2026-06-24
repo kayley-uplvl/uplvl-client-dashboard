@@ -297,7 +297,10 @@ async function loadData(){
       let newOpp4w=0,upcoming=0,waiting=0,pub4w=0,pubTotal=0,newOpp3m=0,pub3m=0,mediaCO4w=0;
       const recentTasks=[],pubTasks=[];
 
-      if(visList){
+      // Skip counting entirely if campaign hasn't started yet
+      const campaignStarted = kickoffDate && kickoffDate <= new Date();
+
+      if(visList && campaignStarted){
         // Step 1: fetch all tasks in the visibility list
         let page=0,more=true;
         const allVisTasks=[];
