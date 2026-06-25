@@ -280,18 +280,20 @@ async function loadData(){
 
       // Scan all lists for kickoff date + AM task
       for(const list of lists){
-        let page=0,more=true;
-        while(more){
-          const td=await cuFetch('/list/'+list.id+'/task?archived=false&include_closed=true&page='+page);
-          for(const t of(td.tasks||[])){
-            const kd=parseKickoffDate(t.name);
-            if(kd&&(!kickoffDate||kd<kickoffDate)) kickoffDate=kd;
-            const am=parseAM(t.name);
-            if(am&&!accountManager) accountManager=am;
+        try{
+          let page=0,more=true;
+          while(more){
+            const td=await cuFetch('/list/'+list.id+'/task?archived=false&include_closed=true&page='+page);
+            for(const t of(td.tasks||[])){
+              const kd=parseKickoffDate(t.name);
+              if(kd&&(!kickoffDate||kd<kickoffDate)) kickoffDate=kd;
+              const am=parseAM(t.name);
+              if(am&&!accountManager) accountManager=am;
+            }
+            more=!td.last_page&&(td.tasks||[]).length>0;
+            if(++page>3) break;
           }
-          more=!td.last_page&&(td.tasks||[]).length>0;
-          if(++page>3) break;
-        }
+        }catch(e){ console.warn('Skipping list '+list.id+' ('+list.name+'): '+e.message); }
       }
 
       let newOpp4w=0,upcoming=0,waiting=0,pub4w=0,pubTotal=0,newOpp3m=0,pub3m=0,mediaCO4w=0;
@@ -304,12 +306,14 @@ async function loadData(){
         // Step 1: fetch all tasks in the visibility list
         let page=0,more=true;
         const allVisTasks=[];
-        while(more){
-          const td=await cuFetch('/list/'+visList.id+'/task?archived=false&include_closed=true&subtasks=false&page='+page);
-          allVisTasks.push(...(td.tasks||[]));
-          more=!td.last_page&&(td.tasks||[]).length>0;
-          if(++page>8) break;
-        }
+        try{
+          while(more){
+            const td=await cuFetch('/list/'+visList.id+'/task?archived=false&include_closed=true&subtasks=false&page='+page);
+            allVisTasks.push(...(td.tasks||[]));
+            more=!td.last_page&&(td.tasks||[]).length>0;
+            if(++page>8) break;
+          }
+        }catch(e){ console.warn('Skipping visibility list for '+folder.name+': '+e.message); }
 
         // Step 2: count all metrics directly from task data
         allVisTasks.forEach(t=>{
