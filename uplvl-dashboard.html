@@ -338,7 +338,7 @@ async function loadData(){
       }
 
       recentTasks.sort((a,b)=>b.ts-a.ts);
-      out.push({id:folder.id,name:folder.name,manager:accountManager,newOpp4w,mediaCO4w,upcoming,waiting,pub4w,pubTotal,newOpp3m,pub3m,kickoffDate,tasks:recentTasks.slice(0,6)});
+      out.push({id:folder.id,name:folder.name,manager:accountManager,newOpp4w,mediaCO4w,upcoming,waiting,pub4w,pubTotal,newOpp3m,pub3m,kickoffDate,started:!!campaignStarted,tasks:recentTasks.slice(0,6)});
     }
 
     S.clients=out; S.live=true; S.loading=false;
@@ -356,8 +356,9 @@ async function loadData(){
 
 function updateTotals(){
   const t=key=>S.clients.reduce((a,x)=>a+(x[key]||0),0);
-  const n=S.clients.length||1;
-  const avg=(key)=>(t(key)/n).toFixed(1).replace(/\.0$/,'');
+  const started=S.clients.filter(c=>c.started);
+  const n=started.length||1;
+  const avg=(key)=>(started.reduce((a,x)=>a+(x[key]||0),0)/n).toFixed(1).replace(/\.0$/,'');
   document.getElementById('tot-newop4w').textContent    = t('newOpp4w');
   document.getElementById('avg-newop4w').textContent    = avg('newOpp4w');
   document.getElementById('tot-pub4w').textContent      = t('pub4w');
