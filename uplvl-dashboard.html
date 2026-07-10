@@ -179,6 +179,7 @@ const W4           = 28*24*60*60*1000;
 const W3M          = 90*24*60*60*1000;
 
 function norm(s){ return String(s==null?'':s).toLowerCase().trim(); }
+function isPlaceholder(t){ const n=norm(t.name||''); return n==='n/a'||n==='x'; }
 function isNewOpp(s)  { return norm(s)==='new opp'; }
 function isBooking(s) { return norm(s)==='booking'; }
 function isUpcoming(s){ return norm(s)==='upcoming'; }
@@ -317,6 +318,7 @@ async function loadData(){
 
         // Step 2: count all metrics directly from task data
         allVisTasks.forEach(t=>{
+          if(isPlaceholder(t)) return; // skip N/A and X placeholder tasks
           const grp=t.status?.status||'';
           const synd=isSyndication(t); // exclude syndication from all counts
           // new ops: tasks created within the window in a pipeline status (not syndication)
